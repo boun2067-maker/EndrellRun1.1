@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Địa Lí Thế Giới</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --success-color: #059669;
+            --error-color: #dc2626;
+            --bg-color: #f8f9fa;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .question-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #111827;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #e5e7eb;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary-color);
+            background-color: #eff6ff;
+        }
+
+        .option-btn.correct {
+            background-color: #d1fae5 !important;
+            border-color: var(--success-color) !important;
+            color: #065f46;
+            font-weight: bold;
+        }
+
+        .option-btn.wrong {
+            background-color: #fee2e2 !important;
+            border-color: var(--error-color) !important;
+            color: #991b1b;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .status-correct { color: var(--success-color); }
+        .status-wrong { color: var(--error-color); }
+
+        .disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Trắc Nghiệm Địa Lí 11</h1>
+        <p>Hoa Kỳ - Liên Bang Nga - Nhật Bản</p>
+    </header>
+
+    <div id="quiz-container">
+        </div>
+</div>
+
+<script>
+    const quizData = [
+        { q: "Quần đảo Ha-oai của Hoa Kỳ nằm giữa đại dương nào sau đây?", a: ["Bắc Băng Dương", "Đại Tây Dương", "Ấn Độ Dương", "Thái Bình Dương"], correct: 3 },
+        { q: "Ha-oai là quần đảo nằm giữa Thái Bình Dương có tiềm năng lớn về?", a: ["muối mỏ, hải sản", "hải sản, du lịch", "kim cương, đồng", "du lịch, than đá"], correct: 1 },
+        { q: "Đặc điểm cơ bản của khí hậu Hoa Kỳ là?", a: ["có khí hậu tương đối đồng nhất", "khí hậu nhiệt đới ẩm gió mùa", "tạo thuận lợi cho sản xuất và sinh hoạt", "phân hóa đa dạng thành nhiều đới, kiểu khác nhau"], correct: 3 },
+        { q: "Dân cư Hoa Kỳ chủ yếu sống ở?", a: ["vùng nông thôn", "vùng nội địa đất đai màu mỡ", "trung tâm các đô thị lớn", "vùng phụ cận đô thị lớn và đô thị vệ tinh"], correct: 3 },
+        { q: "Ngành công nghiệp nào sau đây chiếm phần lớn trị giá xuất khẩu của Hoa Kỳ?", a: ["Khai thác", "Năng lượng", "Chế biến", "Điện lực"], correct: 2 },
+        { q: "Ngành nào sau đây tạo nguồn hàng xuất khẩu chủ yếu cho Hoa Kỳ?", a: ["Nông nghiệp", "Ngư nghiệp", "Tiểu thủ công", "Công nghiệp"], correct: 3 },
+        { q: "Nhận định nào sau đây không đúng với đặc điểm vị trí địa lí của Hoa Kỳ?", a: ["Nằm ở bán cầu Tây và tiếp giáp với Mê-hi-cô ở phía Nam", "Có vị trí tiếp giáp với Ca-na-đa và giáp khu vực Mỹ La-tinh", "Nằm giữa hai đại dương là Đại Tây Dương, Ấn Độ Dương", "Ở trung tâm lục địa Bắc Mỹ và tiếp giáp Thái Bình Dương"], correct: 2 },
+        { q: "Vị trí của Hoa Kỳ tạo điều kiện giao lưu kinh tế bằng đường biển qua Thái Bình Dương với?", a: ["các nước châu Phi và vùng Nam Mỹ", "Nhật Bản và các nước Đông Á", "Liên bang Nga và các nước châu Âu", "Ấn Độ và nhiều nước ở Nam Á"], correct: 1 },
+        { q: "Vị trí của Hoa Kỳ tạo điều kiện giao lưu kinh tế bằng đường biển qua Đại Tây Dương với?", a: ["các nước châu Phi và Nam Mỹ", "Nhật Bản và các nước Đông Á", "Liên bang Nga và các nước châu Âu", "Ấn Độ và nhiều nước ở Nam Á"], correct: 2 },
+        { q: "Hiện nay, ngành hàng không - vũ trụ của Hoa Kỳ phân bố tập trung ở khu vực nào sau đây?", a: ["Vùng núi Cooc-đi-e và ven Ngũ Hồ", "Ở vùng phía nam và Trung tâm", "Ven Thái Bình Dương và phía nam", "Vùng Đông Bắc và ven Ngũ Hồ"], correct: 2 },
+        { q: "Nông nghiệp chiếm tỉ trọng nhỏ trong cơ cấu GDP của Hoa Kỳ là do?", a: ["Điều kiện tự nhiên không thuận lợi cho phát triển nông nghiệp", "Hoa Kỳ phải nhập khẩu phần lớn nông sản từ nước ngoài", "Nông nghiệp có năng suất thấp và kỹ thuật lạc hậu", "Công nghiệp, dịch vụ rất phát triển, mang lại nhiều lợi nhuận"], correct: 3 },
+        { q: "Hình dạng cân đối của lãnh thổ Hoa Kỳ ở phần đất trung tâm Bắc Mỹ thuận lợi cho?", a: ["phân bố dân cư và khai thác khoáng sản", "phân bố sản xuất và phát triển giao thông", "giao lưu với Tây Âu qua Đại Tây Dương", "dễ dàng để giao lưu kinh tế giữa các miền"], correct: 1 },
+        { q: "Có bao nhiêu phát biểu đúng với Hoa Kỳ (Rộng lớn, Tài nguyên phong phú, Dân nhập cư, Kinh tế mạnh nhất)?", a: ["1", "2", "3", "4"], correct: 3 },
+        { q: "Liên bang Nga giáp với các đại dương nào sau đây?", a: ["Thái Bình Dương, Bắc Băng Dương", "Bắc Băng Dương, Đại Tây Dương", "Đại Tây Dương, Ấn Độ Dương", "Ấn Độ Dương, Thái Bình Dương"], correct: 0 },
+        { q: "Sông nào được xem là ranh giới tự nhiên của phần phía Đông và phía Tây Liên bang Nga?", a: ["Von-ga", "Ô-bi", "I-ê-nít-xây", "Lê-na"], correct: 2 },
+        { q: "Hai trung tâm dịch vụ lớn nhất của Liên bang Nga là?", a: ["Nô-vô-xi-biếc, ôm-xcơ", "Mát-xcơ-va, ôm-xcơ", "Mát-xcơ-va, Xanh Pê-téc-bua", "Ma-ga-đan, Kha-ba-rốp"], correct: 2 },
+        { q: "Vùng kinh tế phát triển nhất của Liên bang Nga là?", a: ["Trung ương", "U-ran", "Viễn Đông", "Trung tâm đất đen"], correct: 0 },
+        { q: "Đại bộ phận dân cư Liên bang Nga sống ở?", a: ["vùng Viễn Đông", "phần Châu Âu thuộc Nga", "đồng bằng Tây Xi bia", "ven biển phía bắc và phía đông"], correct: 1 },
+        { q: "Sản phẩm xuất khẩu quan trọng nhất của Liên bang Nga là?", a: ["dầu thô và khí tự nhiên", "máy móc và dược phẩm", "sản phẩm điện, điện tử", "xe cộ, đá quý, chất dẻo"], correct: 0 },
+        { q: "Ngành công nghiệp mũi nhọn, mang lại doanh thu lớn cho Liên bang Nga là?", a: ["khai thác dầu khí", "luyện kim", "điện tử - tin học", "Hoá chất"], correct: 0 },
+        { q: "Địa hình Liên bang Nga có đặc điểm là?", a: ["cao ở phía bắc, thấp dần về phía nam", "cao ở phía nam, thấp dần về phía bắc", "cao ở phía đông, thấp dần về phía tây", "cao ở phía tây, thấp dần về phía đông"], correct: 2 },
+        { q: "Nơi có nhiều thuận lợi cho trồng cây lương thực ở Liên bang Nga là?", a: ["đồng bằng Đông Âu", "dãy U-ran", "đồng Xi-bia", "Trung Xi-bia"], correct: 0 },
+        { q: "Vùng nào sau đây có mật độ dân số cao nhất ở Liên bang Nga?", a: ["Đồng bằng Đông Âu", "Đồng bằng Tây Xi-bia", "Cao nguyên Trung Xi-bia", "Đông Xi-bia"], correct: 0 },
+        { q: "Hoạt động xuất, nhập khẩu của Liên Bang Nga có đặc điểm nào sau đây?", a: ["Trị giá xuất khẩu giảm, trị giá nhập khẩu tăng", "Trị giá xuất khẩu tăng, trị giá nhập khẩu giảm", "Trị giá xuất khẩu thường lớn hơn trị giá nhập khẩu", "Trị giá xuất khẩu thường nhỏ hơn trị giá nhập khẩu"], correct: 2 },
+        { q: "Đảo có diện tích lớn nhất Nhật Bản là?", a: ["Hô-cai-đô", "Hôn-su", "Xi-cô-cư", "Kiu-xiu"], correct: 1 },
+        { q: "Từ bắc xuống nam, bốn đảo lớn nhất của Nhật Bản lần lượt là?", a: ["Kiu-xiu, Hôn-su, Hô-cai-đô, Xi-cô-cư", "Hôn-su, Hô-cai-đô, Kiu-xiu, Xi-cô-cư", "Hô-cai-đô, Hôn-su, Xi-cô-cư, Kiu-xiu", "Hôn-su, Hô-cai-đô, Xi-cô-cư, Kiu-xiu"], correct: 2 },
+        { q: "Dạng địa hình nào sau đây chiếm phần lớn diện tích tự nhiên của Nhật Bản?", a: ["Đồi núi", "Bình nguyên", "Cao nguyên", "Đồng bằng"], correct: 0 },
+        { q: "Cây trồng chính của Nhật Bản là?", a: ["lúa mì", "cà phê", "lúa gạo", "cao su"], correct: 2 },
+        { q: "Phát biểu nào sau đây không đúng về dân cư Nhật Bản?", a: ["Nhật Bản là một nước đông dân", "Phần lớn dân ở các đô thị ven biển", "Tỉ suất gia tăng tự nhiên dân số cao", "Tỉ lệ người già ngày càng gia tăng"], correct: 2 },
+        { q: "Các trung tâm công nghiệp rất lớn của Nhật Bản tập trung nhiều nhất ở đảo nào sau đây?", a: ["Hôn-su", "Hô-cai-đô", "Xi-cô-cư", "Kiu-xiu"], correct: 0 },
+        { q: "Loại hình giao thông vận tải có ý nghĩa quan trọng nhất với ngành ngoại thương của Nhật Bản là?", a: ["đường biển", "đường ô tô", "đường hàng không", "đường sắt"], correct: 0 },
+        { q: "Các sông của Nhật Bản có đặc điểm?", a: ["phần lớn chảy theo hướng bắc - nam", "tạo nên những đồng bằng rộng lớn, phì nhiêu", "đa số có chiều dài lớn, nhiều nước", "có giá trị về thủy điện nhưng hạn chế về mặt giao thông"], correct: 3 },
+        { q: "Nền nông nghiệp Nhật Bản?", a: ["có quy mô lớn, năng suất cao", "chủ yếu sản xuất ra sản phẩm để xuất khẩu", "có ngành chăn nuôi phát triển hơn ngành trồng trọt", "sản xuất theo hướng thâm canh, áp dụng công nghệ tiên tiến"], correct: 3 },
+        { q: "Nguyên nhân khiến các trung tâm công nghiệp của Nhật Bản tập trung ở ven biển?", a: ["Lực lượng lao động", "Khoáng sản biển", "Công nghiệp hóa chất", "Thuận lợi xuất, nhập khẩu nguyên liệu, hàng hóa"], correct: 3 },
+        { q: "Đặc tính cần cù, trách nhiệm của người lao động Nhật Bản là?", a: ["Sự khác biệt duy nhất", "Trở ngại hợp tác", "Nhân tố quan trọng hàng đầu thúc đẩy kinh tế", "Ảnh hưởng không nhiều"], correct: 2 },
+        { q: "Có bao nhiêu phát biểu đúng về thiên nhiên Nhật Bản (Nhiều đảo, Nghèo khoáng sản, Gió mùa, Núi lửa/Động đất)?", a: ["1", "2", "3", "4"], correct: 3 },
+        { q: "Hầu hết các ngành công nghiệp nổi tiếng của Nhật Bản đều hướng vào?", a: ["tận dụng lao động", "tận dụng nguyên liệu", "Sử dụng khoa học - kĩ thuật cao", "phục vụ trong nước"], correct: 2 }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+
+    function loadQuiz() {
+        quizData.forEach((data, index) => {
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.innerHTML = `
+                <div class="question-text">Câu ${index + 1}: ${data.q}</div>
+                <div class="options-container" id="options-${index}">
+                    ${data.a.map((opt, i) => `
+                        <button class="option-btn" onclick="checkAnswer(${index}, ${i})">
+                            ${String.fromCharCode(65 + i)}. ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback-${index}"></div>
+            `;
+            quizContainer.appendChild(card);
+        });
+    }
+
+    window.checkAnswer = function(qIndex, selectedIndex) {
+        const optionsContainer = document.getElementById(`options-${qIndex}`);
+        const buttons = optionsContainer.getElementsByClassName('option-btn');
+        const feedback = document.getElementById(`feedback-${qIndex}`);
+        const correctAnswer = quizData[qIndex].correct;
+
+        // Vô hiệu hóa tất cả các nút trong câu này
+        Array.from(buttons).forEach((btn, i) => {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+            if (i === correctAnswer) {
+                btn.classList.add('correct');
+            }
+        });
+
+        // Nếu chọn sai, đánh dấu nút đã chọn
+        if (selectedIndex !== correctAnswer) {
+            buttons[selectedIndex].classList.add('wrong');
+            feedback.innerHTML = `<span class="status-wrong">✘ Sai rồi!</span> Đáp án đúng là <b>${String.fromCharCode(65 + correctAnswer)}</b>.`;
+        } else {
+            feedback.innerHTML = `<span class="status-correct">✔ Chính xác!</span>`;
+        }
+        
+        feedback.classList.add('show');
+    };
+
+    loadQuiz();
+</script>
+
+</body>
+</html>
